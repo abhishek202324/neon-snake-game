@@ -233,5 +233,46 @@ document.addEventListener('keydown', (e) => {
 
 startBtn.addEventListener('click', initGame);
 
+// Touch Controls for Mobile
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, {passive: true});
+
+document.addEventListener('touchend', (e) => {
+    if (!isStarted || isGameOver) {
+        // Only start if they clicked the game area
+        if (e.target === canvas || e.target === uiLayer || e.target === document.body) {
+             initGame();
+        }
+        return;
+    }
+    
+    let touchEndX = e.changedTouches[0].screenX;
+    let touchEndY = e.changedTouches[0].screenY;
+    
+    let diffX = touchEndX - touchStartX;
+    let diffY = touchEndY - touchStartY;
+    
+    // Require a minimum swipe distance to avoid tiny accidental touches
+    if (Math.abs(diffX) < 20 && Math.abs(diffY) < 20) return;
+    
+    const goingUp = dy === -1;
+    const goingDown = dy === 1;
+    const goingRight = dx === 1;
+    const goingLeft = dx === -1;
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0 && !goingLeft) { dx = 1; dy = 0; }
+        else if (diffX < 0 && !goingRight) { dx = -1; dy = 0; }
+    } else {
+        if (diffY > 0 && !goingUp) { dx = 0; dy = 1; }
+        else if (diffY < 0 && !goingDown) { dx = 0; dy = -1; }
+    }
+});
+
 // Initial draw
 draw();

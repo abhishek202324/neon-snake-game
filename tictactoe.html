@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neon Tic Tac Toe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        h1 { color: #ff00ff; text-shadow: 0 0 10px #ff00ff; margin-bottom: 20px; }
+        .board { display: grid; grid-template-columns: repeat(3, 90px); gap: 5px; margin-bottom: 20px; }
+        .cell { width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 40px; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; background: rgba(255,255,255,0.05); transition: 0.3s; }
+        .cell:hover { background: rgba(255,255,255,0.1); }
+        .cell.x { color: #00f3ff; text-shadow: 0 0 10px #00f3ff; }
+        .cell.o { color: #39ff14; text-shadow: 0 0 10px #39ff14; }
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; }
+        #status { font-size: 20px; margin-bottom: 20px; min-height: 25px;}
+        button { padding: 10px 20px; font-family: 'Orbitron', sans-serif; font-size: 16px; background: transparent; color: #ff00ff; border: 2px solid #ff00ff; cursor: pointer; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); border-radius: 5px; transition: 0.3s; }
+        button:hover { background: #ff00ff; color: #000; box-shadow: 0 0 20px #ff00ff; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ BACK</a>
+    <h1>TIC TAC TOE</h1>
+    <div id="status">Player X's Turn</div>
+    <div class="board" id="board">
+        <div class="cell" onclick="makeMove(0)"></div><div class="cell" onclick="makeMove(1)"></div><div class="cell" onclick="makeMove(2)"></div>
+        <div class="cell" onclick="makeMove(3)"></div><div class="cell" onclick="makeMove(4)"></div><div class="cell" onclick="makeMove(5)"></div>
+        <div class="cell" onclick="makeMove(6)"></div><div class="cell" onclick="makeMove(7)"></div><div class="cell" onclick="makeMove(8)"></div>
+    </div>
+    <button onclick="reset()">RESTART</button>
+    <script>
+        let board = Array(9).fill('');
+        let current = 'X';
+        let active = true;
+        const cells = document.querySelectorAll('.cell');
+        const status = document.getElementById('status');
+        const win = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        
+        function makeMove(i) {
+            if(!active || board[i]) return;
+            board[i] = current;
+            cells[i].textContent = current;
+            cells[i].classList.add(current.toLowerCase());
+            if(checkWin()) {
+                status.textContent = current + ' WINS!';
+                active = false;
+            } else if(!board.includes('')) {
+                status.textContent = 'DRAW!';
+                active = false;
+            } else {
+                current = current === 'X' ? 'O' : 'X';
+                status.textContent = `Player ${current}'s Turn`;
+            }
+        }
+        function checkWin() {
+            return win.some(p => board[p[0]] && board[p[0]] === board[p[1]] && board[p[1]] === board[p[2]]);
+        }
+        function reset() {
+            board.fill(''); active = true; current = 'X'; status.textContent = "Player X's Turn";
+            cells.forEach(c => { c.textContent = ''; c.className = 'cell'; });
+        }
+    </script>
+</body>
+</html>

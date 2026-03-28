@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Snake</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <a href="index.html" class="back-btn" style="color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 10px; display: flex; align-items: center;">⬅ BACK</a>
+            <div class="score-board">
+                <p>SCORE <span id="score">0</span></p>
+            </div>
+            <div class="score-board">
+                <p>HIGH SCORE <span id="high-score">0</span></p>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas" width="500" height="500"></canvas>
+        
+        <div id="ui-layer" class="ui-layer visible">
+            <h1 class="glow-text">NEON SNAKE</h1>
+            <p id="game-message">Press Space or Click to Start</p>
+            <button id="start-btn" class="neon-button">START GAME</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

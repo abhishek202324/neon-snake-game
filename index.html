@@ -3,30 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Snake</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Neon Game Portal</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --grid-color: rgba(255, 255, 255, 0.05);
+            --neon-green: #39ff14;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-red: #ff3131;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Orbitron', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1.title {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 0 0 10px #fff, 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background: rgba(11, 12, 16, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        /* Specific card colors */
+        .card-snake { border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); }
+        .card-snake:hover { box-shadow: 0 0 30px rgba(57, 255, 20, 0.5); }
+        .card-snake .game-title { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+
+        .card-ttt { border-color: var(--neon-pink); box-shadow: 0 0 15px rgba(255, 0, 255, 0.2); }
+        .card-ttt:hover { box-shadow: 0 0 30px rgba(255, 0, 255, 0.5); }
+        .card-ttt .game-title { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+
+        .card-memory { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .card-memory:hover { box-shadow: 0 0 30px rgba(0, 243, 255, 0.5); }
+        .card-memory .game-title { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+
+        .card-rps { border-color: var(--neon-red); box-shadow: 0 0 15px rgba(255, 49, 49, 0.2); }
+        .card-rps:hover { box-shadow: 0 0 30px rgba(255, 49, 49, 0.5); }
+        .card-rps .game-title { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); }
+
+        .card-coming { border-color: #555; filter: grayscale(100%); cursor: not-allowed; }
+        .card-coming .game-title { color: #888; }
+        .coming-badge {
+            position: absolute;
+            top: 20px; right: -30px;
+            background: #ffaa00;
+            color: #000;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 5px 30px;
+            transform: rotate(45deg);
+        }
+
+        @media (max-width: 600px) {
+            h1.title { font-size: 2rem; }
+            .game-card { padding: 20px; }
+        }
+    </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <div class="score-board">
-                <p>SCORE <span id="score">0</span></p>
-            </div>
-            <div class="score-board">
-                <p>HIGH SCORE <span id="high-score">0</span></p>
-            </div>
+    <header>
+        <h1 class="title">Neon Game Portal</h1>
+        <p style="margin-top: 10px; color: #ccc; font-size: 1.2rem;">Select a game to play!</p>
+    </header>
+
+    <div class="portal-grid">
+        <!-- 1. Snake -->
+        <a href="snake.html" class="game-card card-snake">
+            <div class="game-icon">🐍</div>
+            <div class="game-title">NEON SNAKE</div>
+            <p>The classic arcade game. Collect apples to grow!</p>
+        </a>
+
+        <!-- 2. Tic Tac Toe -->
+        <a href="tictactoe.html" class="game-card card-ttt">
+            <div class="game-icon">❌⭕</div>
+            <div class="game-title">TIC TAC TOE</div>
+            <p>2-player classic grid battle.</p>
+        </a>
+
+        <!-- 3. Memory Match -->
+        <a href="memory.html" class="game-card card-memory">
+            <div class="game-icon">🃏</div>
+            <div class="game-title">MEMORY MATCH</div>
+            <p>Test your brain with neon cards.</p>
+        </a>
+
+        <!-- 4. RPS -->
+        <a href="rps.html" class="game-card card-rps">
+            <div class="game-icon">✊✋✌️</div>
+            <div class="game-title">ROCK PAPER SCISSORS</div>
+            <p>Challenge the computer.</p>
+        </a>
+
+        <!-- 5-10. Coming Soon -->
+        <div class="game-card card-coming">
+            <div class="coming-badge">COMING SOON</div>
+            <div class="game-icon">🧱</div><div class="game-title">NEON TETRIS</div><p>Stack blocks to clear lines.</p>
         </div>
-        
-        <canvas id="gameCanvas" width="500" height="500"></canvas>
-        
-        <div id="ui-layer" class="ui-layer visible">
-            <h1 class="glow-text">NEON SNAKE</h1>
-            <p id="game-message">Press Space or Click to Start</p>
-            <button id="start-btn" class="neon-button">START GAME</button>
+        <div class="game-card card-coming">
+            <div class="coming-badge">COMING SOON</div>
+            <div class="game-icon">🦅</div><div class="game-title">NEON FLAPPY</div><p>Fly through endless pipes.</p>
+        </div>
+        <div class="game-card card-coming">
+            <div class="coming-badge">COMING SOON</div>
+            <div class="game-icon">🔢</div><div class="game-title">2048 NEON</div><p>Merge numbers to reach 2048.</p>
+        </div>
+        <div class="game-card card-coming">
+            <div class="coming-badge">COMING SOON</div>
+            <div class="game-icon">👾</div><div class="game-title">SPACE INVADE</div><p>Shoot down the neon aliens.</p>
+        </div>
+        <div class="game-card card-coming">
+            <div class="coming-badge">COMING SOON</div>
+            <div class="game-icon">💣</div><div class="game-title">MINESWEEPER</div><p>Clear the grid without blowing up.</p>
+        </div>
+        <div class="game-card card-coming">
+            <div class="coming-badge">COMING SOON</div>
+            <div class="game-icon">🏓</div><div class="game-title">NEON PONG</div><p>Classic paddle action.</p>
         </div>
     </div>
-    
-    <script src="script.js"></script>
 </body>
 </html>

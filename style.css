@@ -165,3 +165,16 @@ canvas {
 html.shake body {
     animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
+
+/* Responsive for Mobile */
+@media (max-width: 600px) {
+    .header { width: 100%; max-width: 100vw; flex-wrap: wrap; justify-content: space-around; gap: 5px; padding: 0;}
+    .game-container { padding: 10px; width: 100%; max-width: 100vw; }
+    canvas { max-width: 100%; height: auto; }
+    .ui-layer { width: 90%; max-width: 500px; height: 300px; gap: 15px; top: 60%; }
+    .glow-text { font-size: 32px; }
+    .score-board p { font-size: 10px; }
+    .score-board span { font-size: 18px; margin-left: 5px; }
+    .neon-button { padding: 10px 20px; font-size: 14px; }
+    .back-btn { font-size: 10px !important; padding: 2px 5px !important; }
+}
