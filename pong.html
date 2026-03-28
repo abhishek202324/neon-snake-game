@@ -1,110 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Neon Pong</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Pong - Local Multiplayer</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        h1 { color: #00ff88; text-shadow: 0 0 10px #00ff88; margin-top: 50px; margin-bottom: 20px; }
-        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; }
-        canvas { border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); border-radius: 10px; background: rgba(0,0,0,0.5); max-width: 95vw; }
-        #score { font-size: 30px; margin-bottom: 10px; display: flex; gap: 50px; color: #fff; }
+        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        h1 { color: #00ff88; text-shadow: 0 0 10px #00ff88; margin-bottom: 5px; margin-top: 10px; font-size: 24px;}
+        .subtitle { color: #ff0088; text-shadow: 0 0 5px #ff0088; font-size: 14px; margin-bottom: 10px;}
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; z-index: 100;}
+        canvas { border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); border-radius: 10px; background: rgba(0,0,0,0.5); display: block; }
+        #score { font-size: 30px; margin-bottom: 10px; display: flex; gap: 50px; color: #fff; z-index: 10; font-weight: bold;}
+        .p2-score { color: #ff0088; text-shadow: 0 0 10px #ff0088; }
+        .p1-score { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+    
+        .fs-btn { position: absolute; top: 20px; right: 20px; background: transparent; color: #fff; border: 1px solid #555; padding: 10px 15px; border-radius: 5px; cursor: pointer; z-index: 100; font-family: 'Orbitron', Arial; font-size: 14px;}
+        canvas { max-height: 80vh !important; max-width: 100vw !important; object-fit: contain; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent;}
+    
+        @media screen and (orientation: portrait) and (max-width: 800px) {
+            body::after {
+                content: "🔄 ROTATE DEVICE SIDEWAYS TO PLAY";
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: #000; color: #39ff14; display: flex; align-items: center; justify-content: center;
+                z-index: 9999; font-size: 24px; text-align: center; padding: 20px; box-sizing: border-box; font-weight: bold; line-height: 1.5; font-family: 'Orbitron', Arial;
+            }
+        }
+        
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn">⬅ BACK</a>
+    <button onclick="document.documentElement.requestFullscreen().catch(e=>{})" class="fs-btn">🔲 FULLSCREEN</button>
     <h1>NEON PONG</h1>
-    <div id="score"><span>0</span> - <span>0</span></div>
-    <canvas id="pong" width="600" height="400"></canvas>
+    <div class="subtitle">LOCAL MULTIPLAYER (touch left & right screens)</div>
+    <div id="score"><span class="p2-score">0</span> <span style="color:#fff">-</span> <span class="p1-score">0</span></div>
+    <canvas id="pong" width="800" height="450"></canvas>
     <script>
-        const canvas = document.getElementById("pong");
-        const ctx = canvas.getContext("2d");
+        const cvs = document.getElementById("pong");
+        const ctx = cvs.getContext("2d");
         const scoreUI = document.querySelectorAll("#score span");
 
-        const user = { x: canvas.width - 30, y: canvas.height/2 - 50, width: 10, height: 100, color: "#00ff88", score: 0 };
-        const com = { x: 20, y: canvas.height/2 - 50, width: 10, height: 100, color: "#ff0088", score: 0 };
-        const ball = { x: canvas.width/2, y: canvas.height/2, radius: 10, speed: 5, velocityX: -5, velocityY: 5, color: "#fff" };
+        const p1 = { x: cvs.width - 30, y: cvs.height/2 - 50, w: 10, h: 100, color: "#00ff88", score: 0 };
+        const p2 = { x: 20, y: cvs.height/2 - 50, w: 10, h: 100, color: "#ff0088", score: 0 };
+        const ball = { x: cvs.width/2, y: cvs.height/2, r: 10, speed: 7, vX: -7, vY: 7, color: "#fff" };
 
-        canvas.addEventListener("mousemove", e => {
-            let rect = canvas.getBoundingClientRect();
-            let scaleY = canvas.height / rect.height;
-            user.y = (e.clientY - rect.top) * scaleY - user.height/2;
-            if(user.y < 0) user.y = 0;
-            if(user.y + user.height > canvas.height) user.y = canvas.height - user.height;
+        let playing = false;
+
+        cvs.addEventListener("mousemove", e => {
+            let rect = cvs.getBoundingClientRect();
+            let scaleY = cvs.height / rect.height;
+            let y = (e.clientY - rect.top) * scaleY - p1.h/2;
+            p1.y = y; 
+            if(p1.y < 0) p1.y = 0; if(p1.y+p1.h > cvs.height) p1.y = cvs.height-p1.h;
         });
 
-        // Touch for mobile
-        canvas.addEventListener("touchmove", e => {
+        // Touch for multi-touch (Left vs Right screen)
+        cvs.addEventListener("touchstart", handleTouch, {passive:false});
+        cvs.addEventListener("touchmove", handleTouch, {passive:false});
+        
+        function handleTouch(e) {
             e.preventDefault();
-            let rect = canvas.getBoundingClientRect();
-            let scaleY = canvas.height / rect.height;
-            user.y = (e.touches[0].clientY - rect.top) * scaleY - user.height/2;
-            if(user.y < 0) user.y = 0;
-            if(user.y + user.height > canvas.height) user.y = canvas.height - user.height;
-        }, {passive:false});
-
-        function drawRect(x, y, w, h, color) { ctx.fillStyle = color; ctx.shadowBlur = 15; ctx.shadowColor = color; ctx.fillRect(x, y, w, h); ctx.shadowBlur = 0; }
-        function drawCircle(x, y, r, color) { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.closePath(); ctx.shadowBlur = 10; ctx.shadowColor = color; ctx.fill(); ctx.shadowBlur = 0; }
-        function drawNet() {
-            ctx.shadowBlur = 5; ctx.shadowColor = '#fff';
-            for(let i = 0; i <= canvas.height; i+=30) { drawRect(canvas.width/2 - 1, i, 2, 15, "rgba(255,255,255,0.2)"); }
-            ctx.shadowBlur = 0;
+            playing = true;
+            let rect = cvs.getBoundingClientRect();
+            let scaleY = cvs.height / rect.height;
+            let scaleX = cvs.width / rect.width;
+            
+            for(let i=0; i<e.touches.length; i++) {
+                let touchX = (e.touches[i].clientX - rect.left) * scaleX;
+                let touchY = (e.touches[i].clientY - rect.top) * scaleY;
+                
+                if(touchX < cvs.width/2) {
+                    p2.y = touchY - p2.h/2;
+                    if(p2.y < 0) p2.y = 0; if(p2.y+p2.h > cvs.height) p2.y = cvs.height-p2.h;
+                } else {
+                    p1.y = touchY - p1.h/2;
+                    if(p1.y < 0) p1.y = 0; if(p1.y+p1.h > cvs.height) p1.y = cvs.height-p1.h;
+                }
+            }
         }
 
+        function drawRect(x,y,w,h,c) { ctx.fillStyle=c; ctx.shadowBlur=15; ctx.shadowColor=c; ctx.fillRect(x,y,w,h); ctx.shadowBlur=0; }
+        function drawCircle(x,y,r,c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); }
+        function drawNet() { for(let i=0; i<=cvs.height; i+=30) drawRect(cvs.width/2-1, i, 2, 15, "rgba(255,255,255,0.2)"); }
+
         function resetBall() {
-            ball.x = canvas.width/2;
-            ball.y = canvas.height/2;
-            ball.velocityX = -ball.velocityX; // Send to winner
-            ball.speed = 5;
+            ball.x = cvs.width/2;
+            ball.y = cvs.height/2;
+            ball.vX = -ball.vX;
+            ball.speed = 7;
         }
 
         function collision(b, p) {
-            p.top = p.y;
-            p.bottom = p.y + p.height;
-            p.left = p.x;
-            p.right = p.x + p.width;
-            
-            b.top = b.y - b.radius;
-            b.bottom = b.y + b.radius;
-            b.left = b.x - b.radius;
-            b.right = b.x + b.radius;
-            
-            return p.left < b.right && p.top < b.bottom && p.right > b.left && p.bottom > b.top;
+            return p.x < b.x+b.r && p.y < b.y+b.r && p.x+p.w > b.x-b.r && p.y+p.h > b.y-b.r;
         }
 
         function update() {
-            if(ball.x - ball.radius < 0) { user.score++; scoreUI[1].innerText = user.score; resetBall(); }
-            else if(ball.x + ball.radius > canvas.width) { com.score++; scoreUI[0].innerText = com.score; resetBall(); }
+            if(ball.x - ball.r < 0) { p1.score++; scoreUI[2].innerText = p1.score; resetBall(); }
+            else if(ball.x + ball.r > cvs.width) { p2.score++; scoreUI[0].innerText = p2.score; resetBall(); }
             
-            ball.x += ball.velocityX;
-            ball.y += ball.velocityY;
+            ball.x += ball.vX;
+            ball.y += ball.vY;
             
-            // simple AI
-            com.y += ((ball.y - (com.y + com.height/2))) * 0.1;
-            if(com.y < 0) com.y = 0;
-            if(com.y + com.height > canvas.height) com.y = canvas.height - com.height;
+            // Computer AI for P2 if multi-touch is not being used
+            if(!playing) {
+                p2.y += ((ball.y - (p2.y + p2.h/2))) * 0.08;
+                if(p2.y<0) p2.y=0; if(p2.y+p2.h>cvs.height) p2.y=cvs.height-p2.h;
+            }
             
-            if(ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) ball.velocityY = -ball.velocityY;
+            if(ball.y - ball.r < 0 || ball.y + ball.r > cvs.height) ball.vY = -ball.vY;
             
-            let player = (ball.x + ball.radius < canvas.width/2) ? com : user;
+            let player = (ball.x + ball.r < cvs.width/2) ? p2 : p1;
             if(collision(ball, player)) {
-                let collidePoint = (ball.y - (player.y + player.height/2));
-                collidePoint = collidePoint / (player.height/2);
+                let collidePoint = (ball.y - (player.y + player.h/2)) / (player.h/2);
                 let angleRad = (Math.PI/4) * collidePoint;
-                let direction = (ball.x + ball.radius < canvas.width/2) ? 1 : -1;
-                ball.velocityX = direction * ball.speed * Math.cos(angleRad);
-                ball.velocityY = ball.speed * Math.sin(angleRad);
+                let direction = (ball.x + ball.r < cvs.width/2) ? 1 : -1;
+                ball.vX = direction * ball.speed * Math.cos(angleRad);
+                ball.vY = ball.speed * Math.sin(angleRad);
                 ball.speed += 0.5;
             }
         }
 
         function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0,0,cvs.width,cvs.height);
             drawNet();
-            drawRect(user.x, user.y, user.width, user.height, user.color);
-            drawRect(com.x, com.y, com.width, com.height, com.color);
-            drawCircle(ball.x, ball.y, ball.radius, ball.color);
+            drawRect(p1.x, p1.y, p1.w, p1.h, p1.color);
+            drawRect(p2.x, p2.y, p2.w, p2.h, p2.color);
+            drawCircle(ball.x, ball.y, ball.r, ball.color);
         }
 
         function loop() { update(); render(); requestAnimationFrame(loop); }

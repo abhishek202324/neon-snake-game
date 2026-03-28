@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Space Invaders Neon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; }
@@ -10,10 +10,24 @@
         .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; z-index: 10;}
         canvas { border: 2px solid #8800ff; box-shadow: 0 0 20px rgba(136, 0, 255, 0.4); border-radius: 10px; background: rgba(0,0,0,0.5); max-width: 95vw;}
         #msg { position: absolute; z-index: 10; font-size: 24px; text-align: center; color: #00f3ff; text-shadow: 0 0 5px #00f3ff; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border: 1px solid #00f3ff; cursor: pointer;}
+    
+        .fs-btn { position: absolute; top: 20px; right: 20px; background: transparent; color: #fff; border: 1px solid #555; padding: 10px 15px; border-radius: 5px; cursor: pointer; z-index: 100; font-family: 'Orbitron', Arial; font-size: 14px;}
+        canvas { max-height: 80vh !important; max-width: 100vw !important; object-fit: contain; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent;}
+    
+        @media screen and (orientation: portrait) and (max-width: 800px) {
+            body::after {
+                content: "🔄 ROTATE DEVICE SIDEWAYS TO PLAY";
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: #000; color: #39ff14; display: flex; align-items: center; justify-content: center;
+                z-index: 9999; font-size: 24px; text-align: center; padding: 20px; box-sizing: border-box; font-weight: bold; line-height: 1.5; font-family: 'Orbitron', Arial;
+            }
+        }
+        
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn">⬅ BACK</a>
+    <button onclick="document.documentElement.requestFullscreen().catch(e=>{})" class="fs-btn">🔲 FULLSCREEN</button>
     <h1>SPACE INVADERS</h1>
     <div style="position: relative; display: flex; justify-content: center; align-items: center;">
         <canvas id="game" width="600" height="400"></canvas>

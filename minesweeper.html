@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Neon Minesweeper</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; text-align: center; margin:0;}
@@ -14,10 +14,15 @@
         .cell.mine { background: #ff3131 !important; box-shadow: 0 0 15px #ff3131; }
         .cell.flag { background: rgba(255,85,0,0.4); text-shadow: 0 0 5px #ff5500; }
         .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; }
+    
+        .fs-btn { position: absolute; top: 20px; right: 20px; background: transparent; color: #fff; border: 1px solid #555; padding: 10px 15px; border-radius: 5px; cursor: pointer; z-index: 100; font-family: 'Orbitron', Arial; font-size: 14px;}
+        canvas { max-height: 80vh !important; max-width: 100vw !important; object-fit: contain; touch-action: none; outline: none; -webkit-tap-highlight-color: transparent;}
+    
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn">⬅ BACK</a>
+    <button onclick="document.documentElement.requestFullscreen().catch(e=>{})" class="fs-btn">🔲 FULLSCREEN</button>
     <h1>MINESWEEPER</h1>
     <div id="status">💣 10 Mines. Right click to flag.<br><br></div>
     <div class="grid" id="grid"></div>
