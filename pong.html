@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neon Pong</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        h1 { color: #00ff88; text-shadow: 0 0 10px #00ff88; margin-top: 50px; margin-bottom: 20px; }
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; }
+        canvas { border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); border-radius: 10px; background: rgba(0,0,0,0.5); max-width: 95vw; }
+        #score { font-size: 30px; margin-bottom: 10px; display: flex; gap: 50px; color: #fff; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ BACK</a>
+    <h1>NEON PONG</h1>
+    <div id="score"><span>0</span> - <span>0</span></div>
+    <canvas id="pong" width="600" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("pong");
+        const ctx = canvas.getContext("2d");
+        const scoreUI = document.querySelectorAll("#score span");
+
+        const user = { x: canvas.width - 30, y: canvas.height/2 - 50, width: 10, height: 100, color: "#00ff88", score: 0 };
+        const com = { x: 20, y: canvas.height/2 - 50, width: 10, height: 100, color: "#ff0088", score: 0 };
+        const ball = { x: canvas.width/2, y: canvas.height/2, radius: 10, speed: 5, velocityX: -5, velocityY: 5, color: "#fff" };
+
+        canvas.addEventListener("mousemove", e => {
+            let rect = canvas.getBoundingClientRect();
+            let scaleY = canvas.height / rect.height;
+            user.y = (e.clientY - rect.top) * scaleY - user.height/2;
+            if(user.y < 0) user.y = 0;
+            if(user.y + user.height > canvas.height) user.y = canvas.height - user.height;
+        });
+
+        // Touch for mobile
+        canvas.addEventListener("touchmove", e => {
+            e.preventDefault();
+            let rect = canvas.getBoundingClientRect();
+            let scaleY = canvas.height / rect.height;
+            user.y = (e.touches[0].clientY - rect.top) * scaleY - user.height/2;
+            if(user.y < 0) user.y = 0;
+            if(user.y + user.height > canvas.height) user.y = canvas.height - user.height;
+        }, {passive:false});
+
+        function drawRect(x, y, w, h, color) { ctx.fillStyle = color; ctx.shadowBlur = 15; ctx.shadowColor = color; ctx.fillRect(x, y, w, h); ctx.shadowBlur = 0; }
+        function drawCircle(x, y, r, color) { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.closePath(); ctx.shadowBlur = 10; ctx.shadowColor = color; ctx.fill(); ctx.shadowBlur = 0; }
+        function drawNet() {
+            ctx.shadowBlur = 5; ctx.shadowColor = '#fff';
+            for(let i = 0; i <= canvas.height; i+=30) { drawRect(canvas.width/2 - 1, i, 2, 15, "rgba(255,255,255,0.2)"); }
+            ctx.shadowBlur = 0;
+        }
+
+        function resetBall() {
+            ball.x = canvas.width/2;
+            ball.y = canvas.height/2;
+            ball.velocityX = -ball.velocityX; // Send to winner
+            ball.speed = 5;
+        }
+
+        function collision(b, p) {
+            p.top = p.y;
+            p.bottom = p.y + p.height;
+            p.left = p.x;
+            p.right = p.x + p.width;
+            
+            b.top = b.y - b.radius;
+            b.bottom = b.y + b.radius;
+            b.left = b.x - b.radius;
+            b.right = b.x + b.radius;
+            
+            return p.left < b.right && p.top < b.bottom && p.right > b.left && p.bottom > b.top;
+        }
+
+        function update() {
+            if(ball.x - ball.radius < 0) { user.score++; scoreUI[1].innerText = user.score; resetBall(); }
+            else if(ball.x + ball.radius > canvas.width) { com.score++; scoreUI[0].innerText = com.score; resetBall(); }
+            
+            ball.x += ball.velocityX;
+            ball.y += ball.velocityY;
+            
+            // simple AI
+            com.y += ((ball.y - (com.y + com.height/2))) * 0.1;
+            if(com.y < 0) com.y = 0;
+            if(com.y + com.height > canvas.height) com.y = canvas.height - com.height;
+            
+            if(ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) ball.velocityY = -ball.velocityY;
+            
+            let player = (ball.x + ball.radius < canvas.width/2) ? com : user;
+            if(collision(ball, player)) {
+                let collidePoint = (ball.y - (player.y + player.height/2));
+                collidePoint = collidePoint / (player.height/2);
+                let angleRad = (Math.PI/4) * collidePoint;
+                let direction = (ball.x + ball.radius < canvas.width/2) ? 1 : -1;
+                ball.velocityX = direction * ball.speed * Math.cos(angleRad);
+                ball.velocityY = ball.speed * Math.sin(angleRad);
+                ball.speed += 0.5;
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawNet();
+            drawRect(user.x, user.y, user.width, user.height, user.color);
+            drawRect(com.x, com.y, com.width, com.height, com.color);
+            drawCircle(ball.x, ball.y, ball.radius, ball.color);
+        }
+
+        function loop() { update(); render(); requestAnimationFrame(loop); }
+        loop();
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Space Invaders Neon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        h1 { color: #8800ff; text-shadow: 0 0 10px #8800ff; margin-top: 50px; margin-bottom: 20px;}
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; z-index: 10;}
+        canvas { border: 2px solid #8800ff; box-shadow: 0 0 20px rgba(136, 0, 255, 0.4); border-radius: 10px; background: rgba(0,0,0,0.5); max-width: 95vw;}
+        #msg { position: absolute; z-index: 10; font-size: 24px; text-align: center; color: #00f3ff; text-shadow: 0 0 5px #00f3ff; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border: 1px solid #00f3ff; cursor: pointer;}
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ BACK</a>
+    <h1>SPACE INVADERS</h1>
+    <div style="position: relative; display: flex; justify-content: center; align-items: center;">
+        <canvas id="game" width="600" height="400"></canvas>
+        <div id="msg">Click or Tap to Start<br><br>Move with swipe/mouse<br>Shoot automatically</div>
+    </div>
+    <script>
+        const cvs = document.getElementById("game");
+        const ctx = cvs.getContext("2d");
+        const msg = document.getElementById("msg");
+
+        let state=0; // 0=start, 1=play, 2=over
+        let player = {x: 280, y: 350, w: 40, h: 20, col: "#00f3ff", sCol: "#39ff14"};
+        let bullets = [], aliens = [], aDir = 1, aSpeed = 0.5, score=0, frame=0;
+
+        function init() {
+            state=1; msg.style.display="none"; score=0; frame=0;
+            bullets=[]; aliens=[]; aDir=1; aSpeed=0.5;
+            for(let r=0; r<4; r++) {
+                for(let c=0; c<8; c++) {
+                    aliens.push({x: 50 + c*50, y: 30 + r*40, w: 30, h: 20, alive: true, col: "#8800ff"});
+                }
+            }
+        }
+
+        cvs.addEventListener("mousemove", e => { if(state===1) { let r=cvs.getBoundingClientRect(); let scaleX = cvs.width/r.width; player.x=(e.clientX - r.left)*scaleX - player.w/2; }});
+        cvs.addEventListener("touchmove", e => { if(state===1) { e.preventDefault(); let r=cvs.getBoundingClientRect(); let scaleX = cvs.width/r.width; player.x=(e.touches[0].clientX - r.left)*scaleX - player.w/2; }}, {passive:false});
+        msg.addEventListener("click", init);
+        msg.addEventListener("touchstart", (e)=>{e.preventDefault(); init();});
+
+        function update() {
+            if(state!==1) return;
+            frame++;
+            if(player.x < 0) player.x=0; if(player.x+player.w > cvs.width) player.x = cvs.width-player.w;
+
+            // shoot
+            if(frame%20===0) bullets.push({x: player.x+player.w/2-2, y: player.y, w:4, h:10});
+
+            bullets.forEach(b => b.y -= 5);
+            bullets = bullets.filter(b => b.y>0);
+
+            let moveDown = false;
+            let aAlive = aliens.filter(a=>a.alive);
+            if(aAlive.length===0) { state=2; msg.innerHTML=`YOU WIN!<br>Score: ${score}<br>Tap to Restart`; msg.style.display="block"; return; }
+
+            aAlive.forEach(a => {
+                if(a.x <= 0 || a.x+a.w >= cvs.width) moveDown=true;
+            });
+            
+            if(moveDown) { aDir *= -1; aAlive.forEach(a => a.y += 20); aSpeed += 0.2; }
+            aAlive.forEach(a => a.x += aDir * aSpeed);
+
+            bullets.forEach(b => {
+                aAlive.forEach(a => {
+                    if(b.active!==false && b.x>a.x && b.x<a.x+a.w && b.y<a.y+a.h && b.y+b.h>a.y) {
+                        a.alive=false; b.active=false; score+=10;
+                    }
+                });
+            });
+            bullets = bullets.filter(b => b.active!==false);
+
+            aAlive.forEach(a => { if(a.y+a.h >= player.y) state=2; });
+            if(state===2) { msg.innerHTML=`GAME OVER<br>Score: ${score}<br>Tap to Restart`; msg.style.display="block"; }
+        }
+
+        function drawRect(x,y,w,h,c) { ctx.fillStyle=c; ctx.shadowBlur=10; ctx.shadowColor=c; ctx.fillRect(x,y,w,h); ctx.shadowBlur=0; }
+
+        function drawShape(x, y, c) {
+            ctx.fillStyle=c; ctx.shadowBlur=10; ctx.shadowColor=c; 
+            ctx.beginPath(); ctx.moveTo(x+15, y); ctx.lineTo(x+30, y+20); ctx.lineTo(x, y+20); ctx.fill(); 
+            ctx.shadowBlur=0; 
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,cvs.width,cvs.height);
+            if(state===0) return;
+            drawRect(player.x, player.y, player.w, player.h, player.col);
+            drawRect(player.x+15, player.y-10, 10, 10, player.col);
+            bullets.forEach(b => drawRect(b.x, b.y, b.w, b.h, player.sCol));
+            aliens.filter(a=>a.alive).forEach(a => drawShape(a.x, a.y, a.col));
+            ctx.fillStyle="#fff"; ctx.font="20px Orbitron"; ctx.fillText(`SCORE: ${score}`, 10, 30);
+        }
+
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+        loop();
+    </script>
+</body>
+</html>

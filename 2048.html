@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2048 Neon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; text-align: center; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;}
+        h1 { color: #ff0088; text-shadow: 0 0 10px #ff0088; margin-top: 50px; margin-bottom: 20px;}
+        .grid { display: grid; grid-template-columns: repeat(4, 70px); gap: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; border: 2px solid #ff0088; box-shadow: 0 0 20px rgba(255,0,136,0.5); max-width: 95vw;}
+        .cell { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; transition: 0.1s; }
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; z-index: 10;}
+        #score { font-size: 24px; margin-bottom: 20px; }
+        @media (max-width: 400px) {
+            .grid { grid-template-columns: repeat(4, 60px); }
+            .cell { width: 60px; height: 60px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ BACK</a>
+    <h1>2048 NEON</h1>
+    <div id="score">Score: 0</div>
+    <div class="grid" id="grid"></div>
+    <script>
+        const grid = document.getElementById('grid');
+        const scoreEl = document.getElementById('score');
+        let board = Array(4).fill().map(()=>Array(4).fill(0));
+        let score = 0;
+
+        function init() {
+            grid.innerHTML = '';
+            for(let i=0; i<16; i++) { let c=document.createElement('div'); c.className='cell'; c.id='c'+i; grid.appendChild(c); }
+            addTile(); addTile(); updateUI();
+        }
+
+        function addTile() {
+            let empty = [];
+            for(let r=0; r<4; r++) for(let c=0; c<4; c++) if(board[r][c]===0) empty.push({r,c});
+            if(empty.length>0) {
+                let cell = empty[Math.floor(Math.random()*empty.length)];
+                board[cell.r][cell.c] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function getColor(val) {
+            const colors = {
+                2: '#fff', 4: '#00f3ff', 8: '#39ff14', 16: '#ffef00', 32: '#ff8800',
+                64: '#ff3131', 128: '#ff00ff', 256: '#8800ff', 512: '#00ff88', 1024: '#ffff00', 2048: '#ff0088'
+            };
+            return colors[val] || '#ff0088';
+        }
+
+        function updateUI() {
+            scoreEl.innerText = `Score: ${score}`;
+            for(let r=0; r<4; r++) {
+                for(let c=0; c<4; c++) {
+                    let cv = board[r][c];
+                    let el = document.getElementById('c'+(r*4+c));
+                    el.innerText = cv === 0 ? '' : cv;
+                    el.style.color = cv >= 8 ? '#fff' : '#00f3ff';
+                    el.style.background = cv === 0 ? 'rgba(255,255,255,0.1)' : getColor(cv);
+                    if(cv>0) { el.style.boxShadow = `inset 0 0 10px ${getColor(cv)}`; el.style.color = '#fff'; }
+                    else { el.style.boxShadow = 'none'; }
+                }
+            }
+        }
+
+        function slide(row) {
+            let arr = row.filter(val => val);
+            let missing = 4 - arr.length;
+            let zeros = Array(missing).fill(0);
+            return arr.concat(zeros);
+        }
+
+        function combine(row) {
+            for(let i=0; i<3; i++) {
+                if(row[i] !== 0 && row[i] === row[i+1]) {
+                    row[i] *= 2;
+                    score += row[i];
+                    row[i+1] = 0;
+                }
+            }
+            return row;
+        }
+
+        function operate(row) {
+            row = slide(row);
+            row = combine(row);
+            row = slide(row);
+            return row;
+        }
+
+        function moveLeft() {
+            let changed=false;
+            for(let r=0; r<4; r++) {
+                let old = board[r].join(',');
+                board[r] = operate(board[r]);
+                if(old !== board[r].join(',')) changed = true;
+            }
+            if(changed) { addTile(); updateUI(); }
+        }
+
+        function moveRight() {
+            let changed=false;
+            for(let r=0; r<4; r++) {
+                let old = board[r].join(',');
+                board[r] = operate(board[r].reverse()).reverse();
+                if(old !== board[r].join(',')) changed = true;
+            }
+            if(changed) { addTile(); updateUI(); }
+        }
+
+        function moveUp() {
+            let changed=false;
+            for(let c=0; c<4; c++) {
+                let old = [board[0][c],board[1][c],board[2][c],board[3][c]];
+                let col = operate([...old]);
+                for(let r=0; r<4; r++) board[r][c] = col[r];
+                if(old.join(',') !== col.join(',')) changed = true;
+            }
+            if(changed) { addTile(); updateUI(); }
+        }
+
+        function moveDown() {
+            let changed=false;
+            for(let c=0; c<4; c++) {
+                let old = [board[0][c],board[1][c],board[2][c],board[3][c]];
+                let col = operate(old.reverse()).reverse();
+                for(let r=0; r<4; r++) board[r][c] = col[r];
+                if(old.reverse().join(',') !== col.join(',')) changed = true;
+            }
+            if(changed) { addTile(); updateUI(); }
+        }
+
+        let touchX=0, touchY=0;
+        document.addEventListener('touchstart', e => { touchX=e.touches[0].clientX; touchY=e.touches[0].clientY; }, {passive:false});
+        document.addEventListener('touchend', e => {
+            let dx = e.changedTouches[0].clientX - touchX;
+            let dy = e.changedTouches[0].clientY - touchY;
+            if(Math.abs(dx)>Math.abs(dy)) {
+                if(dx>30) moveRight(); else if(dx<-30) moveLeft();
+            } else {
+                if(dy>30) moveDown(); else if(dy<-30) moveUp();
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if([37,38,39,40].includes(e.keyCode)){ e.preventDefault(); }
+            if(e.key==='ArrowLeft') moveLeft();
+            else if(e.key==='ArrowRight') moveRight();
+            else if(e.key==='ArrowUp') moveUp();
+            else if(e.key==='ArrowDown') moveDown();
+        });
+
+        init();
+    </script>
+</body>
+</html>

@@ -109,18 +109,29 @@
         .card-rps:hover { box-shadow: 0 0 30px rgba(255, 49, 49, 0.5); }
         .card-rps .game-title { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); }
 
-        .card-coming { border-color: #555; filter: grayscale(100%); cursor: not-allowed; }
-        .card-coming .game-title { color: #888; }
-        .coming-badge {
-            position: absolute;
-            top: 20px; right: -30px;
-            background: #ffaa00;
-            color: #000;
-            font-size: 0.8rem;
-            font-weight: bold;
-            padding: 5px 30px;
-            transform: rotate(45deg);
-        }
+        .card-tetris { border-color: #ff8800; box-shadow: 0 0 15px rgba(255, 136, 0, 0.2); }
+        .card-tetris:hover { box-shadow: 0 0 30px rgba(255, 136, 0, 0.5); }
+        .card-tetris .game-title { color: #ff8800; text-shadow: 0 0 10px #ff8800; }
+
+        .card-flappy { border-color: #ffff00; box-shadow: 0 0 15px rgba(255, 255, 0, 0.2); }
+        .card-flappy:hover { box-shadow: 0 0 30px rgba(255, 255, 0, 0.5); }
+        .card-flappy .game-title { color: #ffff00; text-shadow: 0 0 10px #ffff00; }
+
+        .card-2048 { border-color: #ff0088; box-shadow: 0 0 15px rgba(255, 0, 136, 0.2); }
+        .card-2048:hover { box-shadow: 0 0 30px rgba(255, 0, 136, 0.5); }
+        .card-2048 .game-title { color: #ff0088; text-shadow: 0 0 10px #ff0088; }
+
+        .card-space { border-color: #8800ff; box-shadow: 0 0 15px rgba(136, 0, 255, 0.2); }
+        .card-space:hover { box-shadow: 0 0 30px rgba(136, 0, 255, 0.5); }
+        .card-space .game-title { color: #8800ff; text-shadow: 0 0 10px #8800ff; }
+
+        .card-mine { border-color: #ff5500; box-shadow: 0 0 15px rgba(255, 85, 0, 0.2); }
+        .card-mine:hover { box-shadow: 0 0 30px rgba(255, 85, 0, 0.5); }
+        .card-mine .game-title { color: #ff5500; text-shadow: 0 0 10px #ff5500; }
+
+        .card-pong { border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
+        .card-pong:hover { box-shadow: 0 0 30px rgba(0, 255, 136, 0.5); }
+        .card-pong .game-title { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
 
         @media (max-width: 600px) {
             h1.title { font-size: 2rem; }
@@ -163,31 +174,30 @@
             <p>Challenge the computer.</p>
         </a>
 
-        <!-- 5-10. Coming Soon -->
-        <div class="game-card card-coming">
-            <div class="coming-badge">COMING SOON</div>
+        <!-- 5. Tetris -->
+        <a href="tetris.html" class="game-card card-tetris">
             <div class="game-icon">🧱</div><div class="game-title">NEON TETRIS</div><p>Stack blocks to clear lines.</p>
-        </div>
-        <div class="game-card card-coming">
-            <div class="coming-badge">COMING SOON</div>
+        </a>
+        <!-- 6. Flappy -->
+        <a href="flappy.html" class="game-card card-flappy">
             <div class="game-icon">🦅</div><div class="game-title">NEON FLAPPY</div><p>Fly through endless pipes.</p>
-        </div>
-        <div class="game-card card-coming">
-            <div class="coming-badge">COMING SOON</div>
+        </a>
+        <!-- 7. 2048 -->
+        <a href="2048.html" class="game-card card-2048">
             <div class="game-icon">🔢</div><div class="game-title">2048 NEON</div><p>Merge numbers to reach 2048.</p>
-        </div>
-        <div class="game-card card-coming">
-            <div class="coming-badge">COMING SOON</div>
-            <div class="game-icon">👾</div><div class="game-title">SPACE INVADE</div><p>Shoot down the neon aliens.</p>
-        </div>
-        <div class="game-card card-coming">
-            <div class="coming-badge">COMING SOON</div>
+        </a>
+        <!-- 8. Space Invaders -->
+        <a href="spaceinvaders.html" class="game-card card-space">
+            <div class="game-icon">👾</div><div class="game-title">SPACE INVADERS</div><p>Shoot down the neon aliens.</p>
+        </a>
+        <!-- 9. Minesweeper -->
+        <a href="minesweeper.html" class="game-card card-mine">
             <div class="game-icon">💣</div><div class="game-title">MINESWEEPER</div><p>Clear the grid without blowing up.</p>
-        </div>
-        <div class="game-card card-coming">
-            <div class="coming-badge">COMING SOON</div>
+        </a>
+        <!-- 10. Pong -->
+        <a href="pong.html" class="game-card card-pong">
             <div class="game-icon">🏓</div><div class="game-title">NEON PONG</div><p>Classic paddle action.</p>
-        </div>
+        </a>
     </div>
 </body>
 </html>

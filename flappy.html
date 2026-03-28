@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neon Flappy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0b0c10; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden;}
+        h1 { color: #ffff00; text-shadow: 0 0 10px #ffff00; margin-bottom: 20px; margin-top: 50px;}
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; border: 1px solid #555; padding: 10px 20px; border-radius: 5px; z-index: 100;}
+        canvas { border: 2px solid #ffff00; box-shadow: 0 0 20px rgba(255, 255, 0, 0.4); border-radius: 10px; background: #111; display: block; max-width: 95vw; max-height: 80vh; }
+        #msg { position: absolute; font-size: 24px; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; text-shadow: 0 0 10px #fff; text-align: center; cursor: pointer; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border: 1px solid #ffff00;}
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ BACK</a>
+    <h1>NEON FLAPPY</h1>
+    <div style="position: relative;">
+        <canvas id="game" width="400" height="500"></canvas>
+        <div id="msg">Click or Press Space to Start</div>
+    </div>
+    <script>
+        const cvs = document.getElementById("game");
+        const ctx = cvs.getContext("2d");
+        const msg = document.getElementById("msg");
+
+        let frames = 0;
+        let pX = 50, pY = 150, pV = 0, gravity = 0.25, jump = -5.5;
+        let pipes = [];
+        let score = 0, best = 0;
+        let state = 0; // 0=start, 1=play, 2=over
+        
+        const bCol = "#00f3ff", pCol = "#39ff14";
+
+        document.addEventListener("keydown", e => { if(e.code==="Space") jumpBird(); });
+        cvs.addEventListener("mousedown", jumpBird);
+        msg.addEventListener("mousedown", jumpBird);
+        document.addEventListener("touchstart", function(e){ if(e.target===cvs || e.target===msg){e.preventDefault(); jumpBird();} }, {passive:false});
+
+        function jumpBird() {
+            if(state===0) { state=1; msg.style.display="none"; frames=0; score=0; pipes=[]; pY=150; pV=0; }
+            else if(state===1) { pV = jump; }
+            else if(state===2) { state=0; msg.innerHTML = `Game Over<br>Score: ${score}<br>Best: ${best}<br><br>Click to Restart`; msg.style.display="block"; }
+        }
+
+        function drawRect(x,y,w,h,c) { ctx.fillStyle=c; ctx.shadowBlur=10; ctx.shadowColor=c; ctx.fillRect(x,y,w,h); ctx.shadowBlur=0; }
+        
+        function drawBird() {
+            // Draw a glowing triangle for bird
+            ctx.fillStyle = bCol;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = bCol;
+            ctx.beginPath();
+            ctx.moveTo(pX, pY);
+            ctx.lineTo(pX+25, pY+10);
+            ctx.lineTo(pX, pY+20);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function update() {
+            if(state !== 1) return;
+            pV += gravity;
+            pY += pV;
+            
+            if(pY + 20 >= cvs.height || pY < 0) state=2;
+
+            if(frames%100 === 0) {
+                let h = Math.floor(Math.random()*(cvs.height-200)) + 50;
+                pipes.push({x: cvs.width, y: h, crossed: false});
+            }
+            
+            for(let i=0; i<pipes.length; i++) {
+                let p = pipes[i];
+                p.x -= 3;
+                
+                // collision
+                if(pX+20 > p.x && pX < p.x + 50 && pY < p.y) state=2;
+                if(pX+20 > p.x && pX < p.x + 50 && pY+20 > p.y + 120) state=2;
+                
+                if(p.x + 50 < pX && !p.crossed) { score++; p.crossed = true; if(score>best) best=score; }
+                if(p.x + 50 < 0) pipes.shift();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,cvs.width,cvs.height);
+            drawBird();
+            for(let p of pipes) {
+                drawRect(p.x, 0, 50, p.y, pCol); // top
+                drawRect(p.x, p.y+120, 50, cvs.height - (p.y+120), pCol); // bottom
+            }
+            if(state===1 || state===2) {
+                ctx.fillStyle="#fff"; ctx.font="30px Orbitron"; ctx.fillText(score, cvs.width/2 - 15, 50);
+            }
+        }
+        function loop() { update(); draw(); frames++; requestAnimationFrame(loop); }
+        loop();
+    </script>
+</body>
+</html>
