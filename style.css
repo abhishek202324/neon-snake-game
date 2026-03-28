@@ -1,0 +1,167 @@
+:root {
+    --bg-color: #0b0c10;
+    --grid-color: rgba(255, 255, 255, 0.05);
+    --neon-green: #39ff14;
+    --neon-blue: #00f3ff;
+    --neon-pink: #ff00ff;
+    --neon-red: #ff3131;
+    --panel-bg: rgba(11, 12, 16, 0.85);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+.game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 20px;
+    background: radial-gradient(circle at center, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    width: 500px;
+    padding: 0 10px;
+}
+
+.score-board {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.score-board p {
+    font-size: 14px;
+    color: #aaa;
+    letter-spacing: 2px;
+}
+
+.score-board span {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--neon-blue);
+    text-shadow: 0 0 5px var(--neon-blue), 0 0 15px var(--neon-blue);
+    margin-left: 10px;
+}
+
+canvas {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 2px solid var(--neon-pink);
+    border-radius: 15px;
+    box-shadow: 0 0 15px var(--neon-pink), inset 0 0 20px rgba(255, 0, 255, 0.2);
+    cursor: crosshair;
+}
+
+.ui-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background: var(--panel-bg);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    margin-top: 40px; /* Offset for header */
+}
+
+.ui-layer.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.glow-text {
+    font-size: 48px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px var(--neon-green),
+        0 0 40px var(--neon-green),
+        0 0 80px var(--neon-green);
+    letter-spacing: 5px;
+    text-align: center;
+}
+
+#game-message {
+    font-size: 18px;
+    color: #ccc;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.neon-button {
+    background: transparent;
+    color: var(--neon-blue);
+    border: 2px solid var(--neon-blue);
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.neon-button:hover {
+    background: var(--neon-blue);
+    color: #000;
+    box-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+    transform: scale(1.05);
+}
+
+/* Screen shake effect on Game Over */
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+html.shake body {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
